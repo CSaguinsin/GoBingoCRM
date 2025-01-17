@@ -3,7 +3,16 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PlusCircle, Search, Menu, Bell, HelpCircle, UserCircle2, ChevronDown, Inbox, Calendar, Users, Settings, BarChart2 } from 'lucide-react'
+import { PlusCircle, Search, Menu, Bell, HelpCircle, UserCircle2, ChevronDown, Inbox, Calendar, Users, Settings, BarChart2, LogOut } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const sidebarItems = [
   { icon: Inbox, label: 'Inbox' },
@@ -13,11 +22,22 @@ const sidebarItems = [
 ]
 
 export default function CRMDashboard() {
+  const router = useRouter()
   const [tasks, setTasks] = useState([
     { id: 1, name: 'Design new landing page', status: 'In Progress', dueDate: '2023-05-15', assignee: 'Alice' },
     { id: 2, name: 'Develop API endpoints', status: 'To Do', dueDate: '2023-05-20', assignee: 'Bob' },
     { id: 3, name: 'User testing', status: 'Done', dueDate: '2023-05-10', assignee: 'Charlie' },
   ])
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      router.push('/login')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -47,9 +67,9 @@ export default function CRMDashboard() {
                 <Menu className="h-6 w-6" />
               </Button>
               <Input 
-                    className="pl-10 w-64" // Add padding to leave space for the icon
-                    placeholder="Search..." 
-                />
+                className="pl-10 w-64"
+                placeholder="Search..." 
+              />
             </div>
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="icon">
@@ -58,11 +78,30 @@ export default function CRMDashboard() {
               <Button variant="ghost" size="icon">
                 <HelpCircle className="h-6 w-6" />
               </Button>
-              <Button variant="ghost" className="flex items-center">
-                <UserCircle2 className="h-6 w-6 mr-2" />
-                <span>John Doe</span>
-                <ChevronDown className="h-4 w-4 ml-2" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center">
+                    <UserCircle2 className="h-6 w-6 mr-2" />
+                    <span>John Doe</span>
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <UserCircle2 className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </header>
@@ -113,4 +152,3 @@ export default function CRMDashboard() {
     </div>
   )
 }
-
