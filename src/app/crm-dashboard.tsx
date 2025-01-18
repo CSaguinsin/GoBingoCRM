@@ -13,6 +13,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import Image from 'next/image';
 import UserRegistrationTable from './components/UserRegistrationTableClient';
 import type { UserRegistration } from './components/UserRegistrationTableClient';
@@ -29,6 +34,7 @@ export default function CRMDashboard() {
   const [userEmail, setUserEmail] = useState("");
   const [registrations, setRegistrations] = useState<UserRegistration[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -48,7 +54,7 @@ export default function CRMDashboard() {
     const fetchRegistrations = async () => {
       try {
         const { data, error } = await supabase
-          .from('user_registrations')
+          .from('user_registration')
           .select('*')
           .order('created_at', { ascending: false });
 
@@ -76,23 +82,9 @@ export default function CRMDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-64 bg-yellow-500 text-white p-4 flex-shrink-0">
-        <div className="flex justify-center items-center mb-8">
-          <Image src="/gobingoLogo.jpeg" alt="GoBingo Logo" width={120} height={120} />
-        </div>
-        <nav>
-          {sidebarItems.map((item, index) => (
-            <a
-              key={index}
-              href="#"
-              className="flex items-center py-2 px-4 rounded hover:bg-yellow-600 transition-colors"
-            >
-              <item.icon className="mr-2" size={20} />
-              {item.label}
-            </a>
-          ))}
-        </nav>
+      {/* Sidebar for desktop */}
+      <div className="hidden md:flex w-64 bg-yellow-500 text-white p-4 flex-shrink-0">
+        <SidebarContent />
       </div>
 
       {/* Main Content */}
@@ -100,11 +92,23 @@ export default function CRMDashboard() {
         {/* Header */}
         <header className="bg-white shadow-sm">
           <div className="flex items-center justify-between p-4">
-            <div className="flex items-center">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
-              </Button>
-              <Input className="pl-10 w-64" placeholder="Search..." />
+            <div className="flex items-center space-x-4">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-64 p-0">
+                  <div className="bg-yellow-500 text-white h-full p-4">
+                    <SidebarContent />
+                  </div>
+                </SheetContent>
+              </Sheet>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Input className="pl-10 w-64 md:w-80" placeholder="Search..." />
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="icon">
@@ -113,33 +117,7 @@ export default function CRMDashboard() {
               <Button variant="ghost" size="icon">
                 <HelpCircle className="h-6 w-6" />
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center">
-                    <UserCircle2 className="h-6 w-6 mr-2" />
-                    <span>{userEmail || "Loading..."}</span>
-                    <ChevronDown className="h-4 w-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <UserCircle2 className="mr-2 h-4 w-4" />
-                    <span>{userEmail || "No Email Found"}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleSignOut}
-                    className="text-red-600"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sign out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <UserDropdown userEmail={userEmail} handleSignOut={handleSignOut} />
             </div>
           </div>
         </header>
@@ -156,5 +134,59 @@ export default function CRMDashboard() {
         </main>
       </div>
     </div>
+  );
+}
+
+function SidebarContent() {
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex justify-center items-center mb-8">
+        <Image src="/gobingoLogo.jpeg" alt="GoBingo Logo" width={120} height={120} />
+      </div>
+      <nav className="flex-1">
+        {sidebarItems.map((item, index) => (
+          <a
+            key={index}
+            href="#"
+            className="flex items-center py-2 px-4 rounded hover:bg-yellow-600 transition-colors"
+          >
+            <item.icon className="mr-2" size={20} />
+            {item.label}
+          </a>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+function UserDropdown({ userEmail, handleSignOut }: { userEmail: string, handleSignOut: () => Promise<void> }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="flex items-center">
+          <UserCircle2 className="h-6 w-6 mr-2" />
+          <span className="hidden md:inline">{userEmail || "Loading..."}</span>
+          <ChevronDown className="h-4 w-4 ml-2" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem>
+          <UserCircle2 className="mr-2 h-4 w-4" />
+          <span>{userEmail || "No Email Found"}</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Settings className="mr-2 h-4 w-4" />
+          <span>Settings</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          className="text-red-600"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Sign out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
