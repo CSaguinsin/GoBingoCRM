@@ -3,21 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  PlusCircle,
-  Search,
-  Menu,
-  Bell,
-  HelpCircle,
-  UserCircle2,
-  ChevronDown,
-  Inbox,
-  Calendar,
-  Users,
-  Settings,
-  BarChart2,
-  LogOut,
-} from "lucide-react";
+import { PlusCircle, Search, Menu, Bell, HelpCircle, UserCircle2, ChevronDown, Inbox, Calendar, Users, Settings, BarChart2, LogOut } from 'lucide-react';
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import {
@@ -27,8 +13,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Image from 'next/image'
-import GoBingoLogo from "../../../public/gobingoLogo.jpeg"
+import Image from 'next/image';
+import UserRegistrationTable from './components/UserRegistrationTableClient';
+import type { UserRegistration } from './components/UserRegistrationTableClient';
 
 const sidebarItems = [
   { icon: Inbox, label: "Inbox" },
@@ -40,6 +27,8 @@ const sidebarItems = [
 export default function CRMDashboard() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState("");
+  const [registrations, setRegistrations] = useState<UserRegistration[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getUser = async () => {
@@ -54,6 +43,25 @@ export default function CRMDashboard() {
       }
     };
     getUser();
+
+    // Fetch registrations
+    const fetchRegistrations = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('user_registrations')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setRegistrations(data || []);
+      } catch (error) {
+        console.error("Error fetching registrations:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRegistrations();
   }, []);
 
   const handleSignOut = async () => {
@@ -69,7 +77,7 @@ export default function CRMDashboard() {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <div className="w-64 bg-yellow-500 text-white p-4">
+      <div className="w-64 bg-yellow-500 text-white p-4 flex-shrink-0">
         <div className="flex justify-center items-center mb-8">
           <Image src="/gobingoLogo.jpeg" alt="GoBingo Logo" width={120} height={120} />
         </div>
@@ -86,7 +94,6 @@ export default function CRMDashboard() {
           ))}
         </nav>
       </div>
-
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -136,6 +143,17 @@ export default function CRMDashboard() {
             </div>
           </div>
         </header>
+
+        {/* Main content area with UserRegistrationTable */}
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-lg">Loading...</div>
+            </div>
+          ) : (
+            <UserRegistrationTable initialData={registrations} />
+          )}
+        </main>
       </div>
     </div>
   );
