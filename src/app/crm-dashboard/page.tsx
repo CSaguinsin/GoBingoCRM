@@ -19,8 +19,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import Image from 'next/image';
-import UserRegistrationTable from './components/UserRegistrationTableClient';
-import type { UserRegistration } from './components/UserRegistrationTableClient';
+import UserRegistrationTable from '../components/UserRegistrationTableClient';
+import type { UserRegistration } from '../components/UserRegistrationTableClient';
 
 const sidebarItems = [
   { icon: Inbox, label: "Inbox" },
