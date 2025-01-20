@@ -78,6 +78,7 @@ export default function UserRegistrationTableClient({ initialData }: { initialDa
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'created_at', direction: 'desc' })
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
+  const [automatingRow, setAutomatingRow] = useState<number | null>(null)
 
   if (!data.length) {
     return (
@@ -109,6 +110,55 @@ export default function UserRegistrationTableClient({ initialData }: { initialDa
     }))
   }
 
+  const handleDirectAsiaAutomation = async (rowData: UserRegistration) => {
+    try {
+      setAutomatingRow(rowData.id)
+
+      const response = await fetch('/api/automation/direct-asia', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          registrationData: rowData
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Automation failed')
+      }
+
+      alert('Direct Asia form automation completed successfully!')
+    } catch (error) {
+      console.error('Automation error:', error)
+      alert('Automation failed. Please check the console for details.')
+    } finally {
+      setAutomatingRow(null)
+    }
+  }
+
+  const renderAutomationDropdown = (row: UserRegistration) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" disabled={automatingRow === row.id}>
+          {automatingRow === row.id ? 'Processing...' : 'Automation'} <ChevronDown className="ml-2 h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuLabel>Insurance Portal</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => handleDirectAsiaAutomation(row)}>
+          Direct Asia
+        </DropdownMenuItem>
+        <DropdownMenuItem>Toyota</DropdownMenuItem>
+        <DropdownMenuItem>Tesla</DropdownMenuItem>
+        <DropdownMenuItem>Sugarpop</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+
   return (
     <Card className="w-full">
       <CardContent className="p-6">
@@ -125,20 +175,7 @@ export default function UserRegistrationTableClient({ initialData }: { initialDa
             <TableHeader>
               <TableRow>
                 <TableCell className="sticky left-0 bg-white z-10">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>View details</DropdownMenuItem>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  Actions
                 </TableCell>
                 {Object.keys(data[0]).map((key) => (
                   <TableHead
@@ -155,21 +192,7 @@ export default function UserRegistrationTableClient({ initialData }: { initialDa
                   </TableHead>
                 ))}
                 <TableHead className="sticky right-0 bg-white z-20">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        Automation Button <ChevronDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuLabel>Insurance Portal</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>Direct Asia</DropdownMenuItem>
-                      <DropdownMenuItem>Toyota</DropdownMenuItem>
-                      <DropdownMenuItem>Tesla</DropdownMenuItem>
-                      <DropdownMenuItem>Sugarpop</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  Automation
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -195,7 +218,9 @@ export default function UserRegistrationTableClient({ initialData }: { initialDa
                   {Object.values(row).map((value, cellIndex) => (
                     <TableCell key={cellIndex}>{value}</TableCell>
                   ))}
-                  <TableCell className="sticky right-0 bg-white z-10" />
+                  <TableCell className="sticky right-0 bg-white z-10">
+                    {renderAutomationDropdown(row)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
