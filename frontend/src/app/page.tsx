@@ -47,7 +47,7 @@ export default function Home() {
           description: `Welcome back, ${data.user.email}!`,
         })
         
-        router.push('/crm-dashboard')
+        router.push('/policy-holder')
       }
     } catch (error) {
       console.error('Login error:', error)
