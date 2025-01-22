@@ -7,30 +7,35 @@ import { PlusCircle, Search, Menu, Bell, HelpCircle, UserCircle2, ChevronDown, I
 
 export default function SidebarContent() {
     const router = useRouter();
+
     const sidebarItems = [
-        { icon: Inbox, label: "Policy Holder's Info" },
-        { icon: Users, label: "Referrer Info" },
-        { icon: Calendar, label: "Insurance Policy" },
-        { icon: BarChart2, label: "Reporting" },
+        { icon: Inbox, label: "Policy Holder's Info", route: "/policy-holder" },
+        { icon: Users, label: "Referrer Info", route: "/referrer-info" },
+        { icon: Calendar, label: "Insurance Policy", route: "/insurance-policy" },
+        { icon: BarChart2, label: "Reporting", route: "/reporting" },
     ];
-    
+
+    const handleNavigation = (route: string) => {
+        router.push(route);
+    };
+
     return (
         <div className="flex flex-col h-full">
-          <div className="flex justify-center items-center mb-8">
-            <Image src="/gobingoLogo.jpeg" alt="GoBingo Logo" width={120} height={120} />
-          </div>
-          <nav className="flex-1">
-            {sidebarItems.map((item, index) => (
-              <a
-                key={index}
-                href="#"
-                className="flex items-center py-2 px-4 rounded hover:bg-yellow-600 transition-colors"
-              >
-                <item.icon className="mr-2" size={20} />
-                {item.label}
-              </a>
-            ))}
-          </nav>
+            <div className="flex justify-center items-center mb-8">
+                <Image src="/gobingoLogo.jpeg" alt="GoBingo Logo" width={120} height={120} />
+            </div>
+            <nav className="flex-1">
+                {sidebarItems.map((item, index) => (
+                    <button
+                        key={index}
+                        onClick={() => handleNavigation(item.route)}
+                        className="flex items-center py-2 px-4 rounded hover:bg-yellow-600 transition-colors w-full text-left"
+                    >
+                        <item.icon className="mr-2" size={20} />
+                        {item.label}
+                    </button>
+                ))}
+            </nav>
         </div>
-      );
+    );
 }
