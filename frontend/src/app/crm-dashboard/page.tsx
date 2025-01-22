@@ -23,9 +23,9 @@ import UserRegistrationTable from '../components/UserRegistrationTableClient';
 import type { UserRegistration } from '../components/UserRegistrationTableClient';
 
 const sidebarItems = [
-  { icon: Inbox, label: "Inbox" },
-  { icon: Calendar, label: "My Work" },
-  { icon: Users, label: "Teams" },
+  { icon: Inbox, label: "Policy Holder's Info" },
+  { icon: Users, label: "Referrer Info" },
+  { icon: Calendar, label: "Insurance Policy" },
   { icon: BarChart2, label: "Reporting" },
 ];
 
