@@ -3,12 +3,13 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
-import { PlusCircle, Search, Menu, Bell, HelpCircle, UserCircle2, ChevronDown, Inbox, Calendar, Users, Settings, BarChart2, LogOut } from 'lucide-react';
+import { PlusCircle, Search, Menu, Bell, HelpCircle, UserCircle2, ChevronDown, Inbox, Calendar, Users, Settings, BarChart2, LogOut, Home } from 'lucide-react';
 
 export default function SidebarContent() {
     const router = useRouter();
 
     const sidebarItems = [
+        { icon: Home, label: "Dashboard", route: "/dashboard" },
         { icon: Inbox, label: "Policy Holder's Info", route: "/policy-holder" },
         { icon: Users, label: "Referrer Info", route: "/referrer-info" },
         { icon: Calendar, label: "Insurance Policy", route: "/insurance-policy" },

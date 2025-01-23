@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import CRMDashboard from "./crm-dashboard/page"
 import { supabase } from '@/lib/supabase'
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
@@ -47,7 +46,7 @@ export default function Home() {
           description: `Welcome back, ${data.user.email}!`,
         })
         
-        router.push('/policy-holder')
+        router.push('/dashboard')
       }
     } catch (error) {
       console.error('Login error:', error)
