@@ -112,32 +112,33 @@ export default function UserRegistrationTableClient({ initialData }: { initialDa
 
   const handleDirectAsiaAutomation = async (rowData: UserRegistration) => {
     try {
-      setAutomatingRow(rowData.id)
-
+      setAutomatingRow(rowData.id);
+      
       const response = await fetch('/api/automation/direct-asia', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          registrationData: rowData
-        }),
-      })
-
-      const result = await response.json()
-
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registrationData: rowData }),
+      });
+  
+      const responseText = await response.text();
+      
       if (!response.ok) {
-        throw new Error(result.error || 'Automation failed')
+        throw new Error(`HTTP error! status: ${response.status}, response: ${responseText}`);
       }
-
-      alert('Direct Asia form automation completed successfully!')
+  
+      try {
+        const result = JSON.parse(responseText);
+        alert(JSON.stringify(result, null, 2));
+      } catch (e) {
+        throw new Error(`Invalid JSON response: ${responseText}`);
+      }
     } catch (error) {
-      console.error('Automation error:', error)
-      alert('Automation failed. Please check the console for details.')
+      console.error('Automation Error:', error);
+      alert(error.message);
     } finally {
-      setAutomatingRow(null)
+      setAutomatingRow(null);
     }
-  }
+  };
 
   const renderAutomationDropdown = (row: UserRegistration) => (
     <DropdownMenu>
