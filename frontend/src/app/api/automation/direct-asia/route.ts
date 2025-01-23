@@ -22,8 +22,8 @@ export async function POST(req: NextRequest) {
       rootDir,
       'backend',
       'services',
-      'selenium',
-      'form_filler.py'
+      'playwright',
+      'playwright_form_filler.py'  // Changed to Playwright script
     );
 
     // Temporary log to verify path (remove after testing)

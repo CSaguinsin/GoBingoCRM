@@ -120,21 +120,16 @@ export default function UserRegistrationTableClient({ initialData }: { initialDa
         body: JSON.stringify({ registrationData: rowData }),
       });
   
-      const responseText = await response.text();
+      const result = await response.json();
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}, response: ${responseText}`);
+        throw new Error(result.error || 'Automation failed');
       }
   
-      try {
-        const result = JSON.parse(responseText);
-        alert(JSON.stringify(result, null, 2));
-      } catch (e) {
-        throw new Error(`Invalid JSON response: ${responseText}`);
-      }
+      alert(`Automation completed: ${result.message}`);
     } catch (error) {
       console.error('Automation Error:', error);
-      alert(error.message);
+      alert(`Automation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setAutomatingRow(null);
     }
