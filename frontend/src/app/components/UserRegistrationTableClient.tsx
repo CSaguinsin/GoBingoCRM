@@ -123,15 +123,24 @@ export default function UserRegistrationTableClient({ initialData }: { initialDa
       const responseText = await response.text();
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}, response: ${responseText}`);
+        let errorDetails = 'Unknown error occurred';
+        try {
+          const errorResponse = JSON.parse(responseText);
+          errorDetails = errorResponse.details || errorResponse.error || errorDetails;
+        } catch (e) {
+          errorDetails = responseText;
+        }
+        
+        // Handle specific Safari WebDriver error
+        if (errorDetails.includes("You must enable the 'Allow Remote Automation'")) {
+          errorDetails = "Please enable 'Allow Remote Automation' in Safari's Develop menu to control Safari via WebDriver.";
+        }
+  
+        throw new Error(`Automation failed: ${errorDetails}`);
       }
   
-      try {
-        const result = JSON.parse(responseText);
-        alert(JSON.stringify(result, null, 2));
-      } catch (e) {
-        throw new Error(`Invalid JSON response: ${responseText}`);
-      }
+      const result = JSON.parse(responseText);
+      alert(JSON.stringify(result, null, 2));
     } catch (error) {
       console.error('Automation Error:', error);
       alert(error.message);
