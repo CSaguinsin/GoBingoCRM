@@ -13,7 +13,7 @@ export default function SidebarContent() {
         { icon: Inbox, label: "Policy Holder's Info", route: "/policy-holder" },
         { icon: Users, label: "Referrer Info", route: "/referrer-info" },
         { icon: Calendar, label: "Insurance Policy", route: "/insurance-policy" },
-        { icon: BarChart2, label: "Reporting", route: "/reporting" },
+        // { icon: BarChart2, label: "Reporting", route: "/reports" },
     ];
 
     const handleNavigation = (route: string) => {
